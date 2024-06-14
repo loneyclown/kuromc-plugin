@@ -5,7 +5,9 @@
   <img src ="https://img.shields.io/github/languages/top/loneyclown/kuromc-plugin?logo=github"/>
 </div>
 
-> __该插件基于[Miao-Yunzai V4](https://ningmengchongshui.github.io/Miao-Yunzai-Docs/)。__
+> __该插件基于[Miao-Yunzai V4](https://ningmengchongshui.github.io/Miao-Yunzai-Docs/)！！！__  
+> __该插件基于[Miao-Yunzai V4](https://ningmengchongshui.github.io/Miao-Yunzai-Docs/)！！！__  
+> __该插件基于[Miao-Yunzai V4](https://ningmengchongshui.github.io/Miao-Yunzai-Docs/)！！！__  
 
 ### 如果觉得插件对你有帮助的话请点一个star！这是对我们最大的支持和动力！
 有相关的建议和问题可以在issues中提出，欢迎PR。
