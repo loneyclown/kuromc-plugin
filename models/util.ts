@@ -2,11 +2,6 @@ import fs from 'fs'
 import { join } from 'path'
 
 export default new class Util {
-
-  // version = '1.0.0-rc.0'
-  // version = pkg.version
-
- 
   pluginName = 'kuromc-plugin'
   pluginHtmlCssRoot = `../../plugins/${this.pluginName}/public`
   rootPath = process.cwd().replace(/\\/g, '/')

@@ -1,7 +1,8 @@
 import React from 'react'
-import { Component, Puppeteer } from 'yunzai/utils'
+import { Component, Puppeteer, createRequire } from 'yunzai/utils'
 import GachaHelp from './components/gachaHelp'
-import util from '../../models/util'
+import Gacha, { type GaChaAppProps } from './components/gacha'
+const require = createRequire(import.meta.url)
 
 // 初始化 组件渲染对象
 const Com = new Component()
@@ -24,11 +25,19 @@ export class Image {
   * 且html_head默认值路径也是../public/output.css
   * 因此，不增加其他head的话，html_head和join_dir都可以省略
   */
-  #HtmlHead = [`<link rel="stylesheet" href="../../public/output.css"></link>`, `<link rel="stylesheet" href=${util.pluginHtmlCssRoot}/gacha.css></link>`].join('\n')
+  #HtmlHead = [`<link rel="stylesheet" href=${require('../../public/kuromc.css')}></link>`].join('\n')
   
   createGachaHelp(uid) {
     return this.Pup.render(Com.create(<GachaHelp />, {
       join_dir: 'gacha_help',
+      html_name: `${uid}.html`,
+      html_head: this.#HtmlHead,
+    }))
+  }
+
+  createGacha(uid, props: GaChaAppProps) {
+    return this.Pup.render(Com.create(<Gacha {...props} />, {
+      join_dir: 'gacha',
       html_name: `${uid}.html`,
       html_head: this.#HtmlHead,
     }))
