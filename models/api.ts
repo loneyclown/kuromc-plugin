@@ -4,8 +4,8 @@ import axios, { type AxiosInstance } from 'axios'
 export enum CARD_POOL_TYPE {
   角色精准调谐 = 1,
   武器精准调谐 = 2,
-  角色调谐_常驻 = 3,
-  武器调谐_常驻 = 4,
+  角色常驻调谐 = 3,
+  武器常驻调谐 = 4,
   新手调谐 = 5,
   新手自选 = 6,
   感恩自选 = 7

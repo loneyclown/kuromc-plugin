@@ -1,15 +1,13 @@
 import _ from 'lodash'
+import moment from 'moment'
+import fs from 'fs'
 import { Bot } from 'yunzai/core'
 import McKuroApi, {
   CARD_POOL_TYPE,
-  T_GaChaResData,
-  T_ResourceType
+  type T_GaChaResData,
+  type T_ResourceType
 } from '../api'
 import util from '../util'
-import role from '../data/role'
-import { join } from 'path'
-import MyMap from '../myMap'
-import moment from 'moment'
 
 export type T_CardPoolType = 'UP' | '常驻'
 
@@ -25,84 +23,107 @@ export type T_GaChaData = {
   count: number
   name: string
   resourceType: T_ResourceType
+  resourceId: number
   src: T_GaChaResData
+}
+
+export type T_GaCheViewData = {
+  data: T_GaChaData[]
+  lastNum: number
+  totalNum: number
+  countStartTime: string
+  countEndTime: string
 }
 
 export default class GaChaModel {
   #mcApi: McKuroApi
-  #jsonPath: string = join(
-    util.rootPath,
-    'data',
-    'kuromc',
-    'gacha',
-    'links.json'
-  )
+  #jsonDataRootPath: string = `${util.rootPath}/data/kuromc/gacha`
+  #jsonLinkPath: string = `${this.#jsonDataRootPath}/links.json`
+  #jsonUserGachaPath: string
   link: T_GachaLink
-  #user_id: string
+  #user_id: number
   player_id: string
-  constructor(user_id) {
-    const links = util.readJSON(this.#jsonPath) || []
+  constructor(user_id: number) {
+    const links = util.readJSON(this.#jsonLinkPath) || []
     this.link = _.find(links, ['user_id', user_id]) || {}
     this.#user_id = user_id
+    this.#jsonUserGachaPath = `${this.#jsonDataRootPath}/${this.#user_id}`
     this.#mcApi = new McKuroApi(this.link.url)
     this.player_id = this.#mcApi.player_id as string
+
+    this.mkdir(this.#jsonDataRootPath)
+    this.mkdir(this.#jsonUserGachaPath)
   }
 
-  // async gacha(type: string) {
-  //   const gacheType = util.isNumber(type) ? type : this.getGachaType(type)
-  //   const gachaData = await this.#mcApi.gacha(gacheType)
-  //   let currId = _.uniqueId()
-  //   const 五星角色统计Map = _.reduce(
-  //     _.reverse(gachaData),
-  //     (prev, curr) => {
-  //       const { name, resourceType } = curr
-  //       const obj = prev.get(currId)
-  //       if (curr.qualityLevel === 5) {
-  //         if (obj) {
-  //           obj.count++
-  //           obj.name = name
-  //           obj.resourceType = curr.resourceType
-  //           obj.props = curr
-  //           obj.role = _.find(role, ['名字', name])
-  //           currId = _.uniqueId()
-  //         } else {
-  //           prev.set(currId, { count: 1, name, resourceType })
-  //           currId = _.uniqueId()
-  //         }
-  //       } else {
-  //         if (obj) {
-  //           obj.count++
-  //         } else {
-  //           prev.set(currId, { count: 1 })
-  //         }
-  //       }
-  //       return prev
-  //     },
-  //     new Map()
-  //   )
-  //   const 五星角色统计Arr = _.map(Array.from(五星角色统计Map), x => {
-  //     const [k, v] = x
-  //     return v
-  //   })
-  //   return { 五星角色统计Arr, 总次数: gachaData.length }
-  // }
+  getGachaData(type: T_CardPoolType = 'UP', isItFourStarCount = false) {
+    const roleGachaType =
+      type === 'UP' ? CARD_POOL_TYPE.角色精准调谐 : CARD_POOL_TYPE.角色常驻调谐
+    const weaponGachaType =
+      type === 'UP' ? CARD_POOL_TYPE.武器精准调谐 : CARD_POOL_TYPE.武器常驻调谐
+    const roleGachaData: T_GaChaResData[] =
+      this.readGachaJSON(`${roleGachaType}`) || []
+    const weaponGachaData: T_GaChaResData[] =
+      this.readGachaJSON(`${weaponGachaType}`) || []
+
+    const roleCount = this.countGacha(
+      roleGachaData,
+      roleGachaType,
+      isItFourStarCount
+    )
+    const weaponCount = this.countGacha(
+      weaponGachaData,
+      weaponGachaType,
+      isItFourStarCount
+    )
+    return {
+      role: {
+        ...roleCount,
+        totalNum: roleGachaData.length,
+        countStartTime:
+          roleGachaData.length > 0
+            ? moment(roleGachaData[0].time).format('YYYY-MM-DD HH:mm:ss')
+            : '',
+        countEndTime:
+          roleGachaData.length > 0
+            ? moment(roleGachaData[roleGachaData.length - 1].time).format(
+                'YYYY-MM-DD HH:mm:ss'
+              )
+            : ''
+      },
+      weapon: {
+        ...weaponCount,
+        totalNum: weaponGachaData.length,
+        countStartTime:
+          weaponGachaData.length > 0
+            ? moment(weaponGachaData?.[0].time).format('YYYY-MM-DD HH:mm:ss')
+            : '',
+        countEndTime:
+          weaponGachaData.length > 0
+            ? moment(weaponGachaData[weaponGachaData.length - 1].time).format(
+                'YYYY-MM-DD HH:mm:ss'
+              )
+            : ''
+      }
+    }
+  }
 
   async updateGacha() {
     try {
       const results = await Promise.allSettled([
         this.#mcApi.gacha(CARD_POOL_TYPE.角色精准调谐),
         this.#mcApi.gacha(CARD_POOL_TYPE.武器精准调谐),
-        this.#mcApi.gacha(CARD_POOL_TYPE.角色调谐_常驻),
-        this.#mcApi.gacha(CARD_POOL_TYPE.武器调谐_常驻),
+        this.#mcApi.gacha(CARD_POOL_TYPE.角色常驻调谐),
+        this.#mcApi.gacha(CARD_POOL_TYPE.武器常驻调谐),
         this.#mcApi.gacha(CARD_POOL_TYPE.新手调谐),
         this.#mcApi.gacha(CARD_POOL_TYPE.新手自选),
         this.#mcApi.gacha(CARD_POOL_TYPE.感恩自选)
       ])
 
+      let updateNum = 0
       results.forEach((result, index) => {
         if (result.status === 'fulfilled') {
           if (result.value !== undefined && _.isArray(result.value)) {
-            this.countGacha(result.value, index + 1)
+            updateNum += this.updateGachaJson(result.value, index + 1)
           } else {
             Bot.logger.warn('This fulfilled promise did not return a value.')
           }
@@ -111,7 +132,7 @@ export default class GaChaModel {
         }
       })
 
-      return Promise.resolve()
+      return Promise.resolve({ updateNum })
     } catch (error) {
       return Promise.reject()
     }
@@ -122,98 +143,104 @@ export default class GaChaModel {
    * @param listData 扭蛋结果数据数组。
    * @param typeId 卡池类型ID，用于区分不同的扭蛋池。
    */
-  countGacha(listData: T_GaChaResData[], typeId: CARD_POOL_TYPE) {
-    // 初始化四星和五星物品的唯一ID，用于在Map中作为键。
-    let fourStarPointerId = _.uniqueId()
-    let fiveStarPointerId = _.uniqueId()
-
-    // 使用Lodash的reduce函数来聚合数据，构建一个Map，其中键是唯一ID，值是扭蛋物品统计信息。
-    const dataMap = _.reduce(
+  countGacha(
+    listData: T_GaChaResData[],
+    typeId: CARD_POOL_TYPE,
+    isItFourStarCount = false
+  ) {
+    let numOf4Star = 0
+    let numOf5star = 0
+    let lastNum = 0
+    const dataArr = _.reduce(
       listData,
       (prev, curr: T_GaChaResData) => {
         // 解构当前扭蛋物品的信息。
-        const { name, resourceType, qualityLevel } = curr
-        // 获取当前四星物品在Map中的对象。
-        const fourStarObj = prev.get(fourStarPointerId)
-        // 获取当前五星物品在Map中的对象。
-        const fiveStarObj = prev.get(fiveStarPointerId)
+        const { name, resourceType, qualityLevel, resourceId } = curr
 
-        // 如果当前物品是四星，则增加其计数。
-        // 统计4星
-        if (qualityLevel === 4) {
-          if (fourStarObj) {
-            fourStarObj.count++
-          } else {
-            // 如果Map中还没有当前四星物品的记录，则创建一个新的记录。
-            prev.set(fourStarPointerId, {
-              count: 1,
-              name,
-              cardPoolTypeId: typeId,
-              src: curr,
-              resourceType
-            })
-            // 生成一个新的唯一ID，用于下一个四星物品。
-            fourStarPointerId = _.uniqueId()
-          }
+        const newObj: T_GaChaData = {
+          name,
+          cardPoolTypeId: typeId,
+          src: curr,
+          resourceType,
+          resourceId,
+          count: 1
         }
-        // 如果当前物品是五星，则增加其计数。
-        // 统计5星
+
+        lastNum++
+
+        if (isItFourStarCount && qualityLevel === 4) {
+          prev.push({ ...newObj, count: numOf4Star + 1 })
+          numOf4Star = 0
+        } else {
+          numOf4Star++
+        }
+
         if (qualityLevel === 5) {
-          if (fiveStarObj) {
-            fiveStarObj.count++
-          } else {
-            // 如果Map中还没有当前五星物品的记录，则创建一个新的记录。
-            prev.set(fiveStarPointerId, {
-              count: 1,
-              name,
-              cardPoolTypeId: typeId,
-              src: curr,
-              resourceType
-            })
-            // 生成一个新的唯一ID，用于下一个五星物品。
-            fiveStarPointerId = _.uniqueId()
-          }
+          prev.push({ ...newObj, count: numOf5star + 1 })
+          numOf5star = 0
+          // 出了5星，4星统计也重置
+          numOf4Star = 0
+          lastNum = 0
+        } else {
+          numOf5star++
         }
-
-        // 返回更新后的Map。
         return prev
       },
-      new Map<string, T_GaChaData>()
+      [] as T_GaChaData[]
     )
 
-    // 打印统计结果。
-    console.log('dataMap', dataMap)
+    return { data: _.reverse(dataArr), lastNum }
   }
 
-  getGachaType(str) {
-    switch (str) {
-      case '角色':
-        return 1
-      case '武器':
-        return 2
-      case '角色常驻':
-        return 3
-      case '武器常驻':
-        return 4
-      case '新手':
-        return 5
-      case '自选':
-        return 6
-      case '感恩':
-      case '感恩自选':
-        return 7
-      default:
-        return 1
+  /**
+   * 更新扭蛋资源JSON文件。
+   *
+   * 该方法用于将新的扭蛋资源数据合并到现有的扭蛋资源JSON文件中。它只会添加更新时间晚于现有最早更新时间的资源。
+   * 这样可以确保只添加新的资源，而不会覆盖或重复现有的资源。
+   *
+   * @param newData 新的扭蛋资源数据数组。
+   * @param type 扭蛋资源的类型，用于确定具体的扭蛋资源文件名。
+   * @returns 返回成功添加到文件中的资源数量。
+   */
+  updateGachaJson(newData: T_GaChaResData[], type: CARD_POOL_TYPE) {
+    // 初始化更新数量计数器
+    let updateNum = 0
+    // 根据扭蛋资源类型生成文件名
+    const fileName = `${type}`
+    // 读取现有的扭蛋资源数据数组，如果文件不存在则返回空数组
+    const oldData: T_GaChaResData[] = this.readGachaJSON(fileName) || []
+    // 获取现有数据中最早的更新时间，如果没有数据则默认为2024年1月1日
+    const latestTime = oldData[oldData.length - 1]?.time || '2024-01-01'
+    // 遍历新数据数组的逆序，以便从最新的资源开始检查
+    for (let item of _.reverse(newData)) {
+      // 如果当前资源的更新时间晚于最早更新时间，则将其添加到现有数据数组中，并增加更新数量计数
+      if (moment(item.time).isAfter(moment(latestTime))) {
+        oldData.push(item)
+        updateNum++
+      } else {
+        // 如果当前资源的更新时间不晚于最早更新时间，则停止遍历，因为后续资源必定更早
+        break
+      }
     }
+    // 将更新后的扭蛋资源数据数组写入到对应的JSON文件中
+    this.writeGachaJSON(fileName, oldData)
+    // 返回成功添加到文件中的资源数量
+    return updateNum
   }
 
-  readGachaJson(user_id) {
-    return util.readJSON(
-      join(util.rootPath, 'data', 'kuromc', 'gacha', user_id, `gacha.json`)
-    )
+  readGachaJSON(fileName: string) {
+    return util.readJSON(`${this.#jsonUserGachaPath}/${fileName}.json`)
   }
 
-  // getUniqueId(obj) {
-  //   return `${obj.resourceId}_${moment(obj.time).}`
-  // }
+  writeGachaJSON(fileName: string, data: T_GaChaResData[]) {
+    return util.writeJSON(`${this.#jsonUserGachaPath}/${fileName}.json`, data)
+  }
+
+  mkdir(path: string) {
+    fs.mkdir(path, { recursive: true }, err => {
+      if (err) {
+        Bot.logger.error('mkdir error', err)
+      }
+    })
+  }
 }

@@ -1,11 +1,10 @@
 .kuromc-bg-img {
   background-image: url(./assets/image/background.jpg);
-  /* background-image: url(/assets/image/background.jpg); */
   background-size: cover;
 }
 
-.kuromc-bg {
-  position: relative;
+.kuromc-container {
+  width: 100%;
 }
 
 .kuromc-text-title {
@@ -14,29 +13,6 @@
 
 .kuromc-text {
   color: #d3cbb8;
-}
-
-.kuromc-help {
-  width: 100%;
-  /* height: 100%; */
-}
-
-.kuromc-gacha {
-  width: 100%;
-  /* height: 100%; */
-}
-
-.kuromc-gacha-wrap {
-}
-
-.kuromc-gacha-header {
-  position: relative;
-}
-
-.kuromc-gacha-title img {
-  margin-top: 4px;
-  height: 36px;
-  width: 210px;
 }
 
 .kuromc-gacha-bottom-line {
@@ -67,5 +43,14 @@
     transparent,
     rgba(76, 88, 79, 0.8) 80%,
     rgb(201, 131, 237)
+  );
+}
+
+.kuromc-level-5-bgc {
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    rgba(76, 88, 79, 0.8) 80%,
+    rgb(255, 246, 145)
   );
 }
