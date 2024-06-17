@@ -1,7 +1,8 @@
 import React from 'react'
-import Page from '../../../layout/page'
-export type DataType = {}
+import Page from '../../layout/page'
+
 export type PropsType = {}
+
 export default function App() {
   return (
     <>

@@ -1,9 +1,10 @@
 import { EventType, Plugin, Segment } from 'yunzai/core'
 import util from '../../models/util'
-import image from './image'
 import { join } from 'path'
 import _ from 'lodash'
 import GaChaModel from '../../models/gacha'
+import image from '../../models/image'
+import { GaChaAppProps } from '../../views/gacha'
 
 export default class App extends Plugin {
   jsonPath = join(util.rootPath, 'data', 'kuromc', 'gacha', 'links.json')
@@ -34,8 +35,8 @@ export default class App extends Plugin {
   }
 
   async gachaHelp(e: EventType) {
-    const UID = e.user_id
-    const img = await image.createGachaHelp(UID)
+    const { user_id } = this.e.sender
+    const img = await image.createPage(user_id, 'gacha/GachaHelp')
     if (typeof img !== 'boolean') {
       e.reply(Segment.image(img))
     } else {
@@ -97,7 +98,7 @@ export default class App extends Plugin {
     const type = this.e.msg.includes('常驻') ? '常驻' : 'UP'
     const gcm = new GaChaModel(user_id)
     const gachaData = gcm.getGachaData(type, true)
-    const img = await image.createGacha(user_id, {
+    const img = await image.createPage<GaChaAppProps>(user_id, 'gacha/index', {
       roleData: gachaData.role,
       weaponData: gachaData.weapon,
       type
@@ -116,7 +117,7 @@ export default class App extends Plugin {
     this.e.reply(`正在获取[UID: ${kmcModel.player_id}]的抽卡数据，请稍后...`)
     try {
       const { updateNum } = await kmcModel.updateGacha()
-      const img = await image.createGachaHelp(user_id)
+      const img = await image.createPage(user_id, 'gacha/GachaHelp')
       const replys: any[] = [
         `获取[UID: ${kmcModel.player_id}]抽卡数据成功！本次更新了${updateNum}条记录`
       ]

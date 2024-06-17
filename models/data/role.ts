@@ -1,4 +1,4 @@
-import { createRequire } from 'yunzai/utils'
+import { createRequire } from 'module'
 import profile, { T_Profile } from "./profile";
 
 const require = createRequire(import.meta.url)
