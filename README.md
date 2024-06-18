@@ -27,3 +27,15 @@ git clone --depth=1 https://github.com/loneyclown/kuromc-plugin.git ./plugins/ku
 <a href="https://github.com/loneyclown/kuromc-plugin/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=loneyclown/kuromc-plugin" />
 </a> -->
+
+## 咕咕咕
+
+- ~~[✅] 抽卡分析~~
+- ~~[✅] 版本活动/当期UP~~
+- [ ] 库街区登录
+- [ ] 每日查询
+- [ ] 图鉴/攻略查询
+- [ ] 面板查询
+- [ ] 伤害计算
+- [ ] 星声预估
+
