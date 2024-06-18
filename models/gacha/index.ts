@@ -45,12 +45,13 @@ export default class GaChaModel {
   player_id: string
   constructor(user_id: number) {
     const links = util.readJSON(this.#jsonLinkPath) || []
-    this.link = _.find(links, ['user_id', user_id]) || {}
+    this.link = _.find(links, ['user_id', user_id])
     this.#user_id = user_id
     this.#jsonUserGachaPath = `${this.#jsonDataRootPath}/${this.#user_id}`
-    this.#mcApi = new McKuroApi(this.link.url)
-    this.player_id = this.#mcApi.player_id as string
-
+    if (this.link?.url) {
+      this.#mcApi = new McKuroApi(this.link.url)
+      this.player_id = this.#mcApi.player_id as string
+    }
     this.mkdir(this.#jsonDataRootPath)
     this.mkdir(this.#jsonUserGachaPath)
   }
@@ -79,30 +80,12 @@ export default class GaChaModel {
       role: {
         ...roleCount,
         totalNum: roleGachaData.length,
-        countStartTime:
-          roleGachaData.length > 0
-            ? moment(roleGachaData[0].time).format('YYYY-MM-DD HH:mm:ss')
-            : '',
-        countEndTime:
-          roleGachaData.length > 0
-            ? moment(roleGachaData[roleGachaData.length - 1].time).format(
-                'YYYY-MM-DD HH:mm:ss'
-              )
-            : ''
+        ...this.getCountTime(roleGachaData)
       },
       weapon: {
         ...weaponCount,
         totalNum: weaponGachaData.length,
-        countStartTime:
-          weaponGachaData.length > 0
-            ? moment(weaponGachaData?.[0].time).format('YYYY-MM-DD HH:mm:ss')
-            : '',
-        countEndTime:
-          weaponGachaData.length > 0
-            ? moment(weaponGachaData[weaponGachaData.length - 1].time).format(
-                'YYYY-MM-DD HH:mm:ss'
-              )
-            : ''
+        ...this.getCountTime(weaponGachaData)
       }
     }
   }
@@ -242,5 +225,19 @@ export default class GaChaModel {
         Bot.logger.error('mkdir error', err)
       }
     })
+  }
+
+  getCountTime(gachaData: T_GaChaResData[]) {
+    if (gachaData.length > 0) {
+      const startTime = gachaData[0]?.time || ''
+      const endTime = gachaData[gachaData.length - 1]?.time || ''
+      if (startTime && endTime) {
+        return {
+          countStartTime: moment(startTime).format('YYYY-MM-DD HH:mm:ss'),
+          countEndTime: moment(endTime).format('YYYY-MM-DD HH:mm:ss')
+        }
+      }
+    }
+    return { countStartTime: '', countEndTime: '' }
   }
 }
