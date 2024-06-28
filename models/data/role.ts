@@ -35,4 +35,6 @@ export default [
   { 名字: '吟霖', resourceId: 1302, 性别: '女', 生日: '9月17日', 属性: profile.导电, 武器: '音感仪', 所属: '今州', 星级: 5, up: true, avatar: require('../../public/assets/image/IconRoleHead175/T_IconRoleHead175_17_UI.png') },
   { 名字: '卡卡罗', 性别: '男', 生日: '7月8日', 属性: profile.导电, 武器: '长刃', 所属: '今州', 星级: 5, avatar: require('../../public/assets/image/IconRoleHead175/T_IconRoleHead175_18_UI.png') },
   { 名字: '鉴心', 性别: '女', 生日: '4月6日', 属性: profile.气动, 武器: '臂铠', 所属: '今州', 星级: 5, avatar: require('../../public/assets/image/IconRoleHead175/T_IconRoleHead175_23_UI.png') },
+  { 名字: '今汐', resourceId: 1304,性别: '女', 生日: '', 属性: profile.衍射, 武器: '长刃', 所属: '今州', 星级: 5, avatar: require('../../public/assets/image/IconRoleHead175/T_IconRoleHead175_24_UI.png') },
+  { 名字: '长离', 性别: '女', 生日: '', 属性: profile.热熔, 武器: '迅刀', 所属: '今州', 星级: 5, avatar: require('../../public/assets/image/IconRoleHead175/T_IconRoleHead175_26_UI.png') },
 ] as T_RoleData[]
