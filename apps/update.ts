@@ -1,7 +1,8 @@
 import { makeForwardMsg, Plugin } from 'yunzai/core'
 import lodash from 'lodash'
 import fs from 'node:fs'
-import { Restart } from '../../system/apps/restart.js'
+import net from 'net'
+import YAML from 'yaml'
 import {} from 'yunzai/core'
 import { sleep } from 'yunzai/utils'
 import { exec, execSync } from 'child_process'
@@ -9,6 +10,23 @@ import { BOT_NAME } from 'yunzai/config'
 import util from '../models/util.js'
 
 let uping = false
+
+/**
+ *
+ * @param port
+ * @returns
+ */
+const isPortTaken = async port => {
+  return new Promise(resolve => {
+    const tester = net
+      .createServer()
+      .once('error', () => resolve(true))
+      .once('listening', () =>
+        tester.once('close', () => resolve(false)).close()
+      )
+      .listen(port)
+  })
+}
 
 export default class update extends Plugin {
   typeName = BOT_NAME
@@ -173,8 +191,66 @@ export default class update extends Plugin {
     return this.reply([errMsg, stdout])
   }
 
-  restart() {
-    new Restart().restart()
+  async restart() {
+    let restart_port
+    try {
+      restart_port = YAML.parse(
+        fs.readFileSync(`./config/config/bot.yaml`, `utf-8`)
+      )
+      restart_port = restart_port.restart_port || 27881
+    } catch {}
+    await this.e.reply('开始执行重启，请稍等...')
+    logger.mark(`${this.e.logFnc} 开始执行重启，请稍等...`)
+
+    let data = JSON.stringify({
+      uin: this.e?.self_id || this.e.bot.uin,
+      isGroup: !!this.e.isGroup,
+      id: this.e.isGroup ? this.e.group_id : this.e.user_id,
+      time: new Date().getTime()
+    })
+
+    let npm = await this.checkPnpm()
+    await redis.set(this.key, data, { EX: 120 })
+    if (await isPortTaken(restart_port || 27881)) {
+      try {
+        const result = await fetch(
+          `http://localhost:${restart_port || 27881}/restart`
+        ).then(res => res.text())
+        if (result !== `OK`) {
+          redis.del(this.key)
+          this.e.reply(`操作失败！`)
+          logger.error(`重启失败`)
+        }
+      } catch (error) {
+        redis.del(this.key)
+        this.e.reply(`操作失败！\n${error}`)
+      }
+    } else {
+      try {
+        let cm = `${npm} start`
+        if (process.argv[1].includes('pm2')) {
+          cm = `${npm} run restart`
+        }
+
+        exec(cm, { windowsHide: true }, (error, stdout, stderr) => {
+          if (error) {
+            redis.del(this.key)
+            this.e.reply(`操作失败！\n${error.stack}`)
+            logger.error(`重启失败\n${error.stack}`)
+          } else if (stdout) {
+            logger.mark('重启成功，运行已由前台转为后台')
+            logger.mark(`查看日志请用命令：${npm} run log`)
+            logger.mark(`停止后台运行命令：${npm} stop`)
+            process.exit()
+          }
+        })
+      } catch (error) {
+        redis.del(this.key)
+        let e = error.stack ?? error
+        this.e.reply(`操作失败！\n${e}`)
+      }
+    }
+    return true
   }
 
   async getLog(Plugin: any = ''): Promise<any> {

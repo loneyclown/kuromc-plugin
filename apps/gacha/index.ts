@@ -11,10 +11,7 @@ export default class App extends Plugin {
   constructor() {
     super()
     this.rule = [
-      {
-        reg: util.getRuleReg(/(抽卡|唤取|hq)帮助/),
-        fnc: this.gachaHelp.name
-      },
+      { reg: util.getRuleReg(/(抽卡|唤取|hq)帮助/), fnc: this.gachaHelp.name },
       {
         reg: util.getRuleReg(/(绑定)?(抽卡|唤取|hq)链接(绑定)?/),
         fnc: this.gachaLinkBind.name
@@ -28,7 +25,9 @@ export default class App extends Plugin {
         fnc: this.gacha.name
       },
       {
-        reg: util.getRuleReg(/(抽卡|唤取|hq)(记录)?更新/),
+        reg: util.getRuleReg(
+          /((抽卡|唤取|hq)(记录)?更新)|(更新(抽卡|唤取|hq)(记录)?)/
+        ),
         fnc: this.updateGacha.name
       }
     ]
@@ -82,7 +81,7 @@ export default class App extends Plugin {
     if (link) {
       this.e.reply(link.url)
     } else {
-      this.e.reply('你还未绑定抽卡链接！')
+      this.e.reply('你还未绑定抽卡链接！绑定方法请查看抽卡帮助！')
     }
     return true
   }
@@ -91,9 +90,8 @@ export default class App extends Plugin {
     const { user_id } = this.e.sender
     const { link } = new GaChaModel(user_id)
     if (!link) {
-      return this.e.reply(
-        '请先绑定抽卡链接，直接艾特bot发送完整的抽卡链接即可！'
-      )
+      this.e.reply('请先绑定抽卡链接，绑定方法请查看抽卡帮助！')
+      return true
     }
     const type = this.e.msg.includes('常驻') ? '常驻' : 'UP'
     const gcm = new GaChaModel(user_id)
@@ -114,6 +112,10 @@ export default class App extends Plugin {
   async updateGacha() {
     const { user_id } = this.e.sender
     const kmcModel = new GaChaModel(user_id)
+    if (!kmcModel.link) {
+      this.e.reply('请先绑定抽卡链接，绑定方法请查看抽卡帮助！')
+      return true
+    }
     this.e.reply(`正在获取[UID: ${kmcModel.player_id}]的抽卡数据，请稍后...`)
     try {
       const { updateNum } = await kmcModel.updateGacha()
