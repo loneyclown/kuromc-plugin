@@ -95,7 +95,7 @@ export default class App extends Plugin {
     }
     const type = this.e.msg.includes('常驻') ? '常驻' : 'UP'
     const gcm = new GaChaModel(user_id)
-    const gachaData = gcm.getGachaData(type, true)
+    const gachaData = gcm.getGachaData(type)
     const img = await image.createPage<GaChaAppProps>(user_id, 'gacha/index', {
       roleData: gachaData.role,
       weaponData: gachaData.weapon,

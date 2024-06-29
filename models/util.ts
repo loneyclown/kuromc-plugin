@@ -1,4 +1,5 @@
 import fs from 'fs'
+import yaml from 'yaml'
 import { join } from 'path'
 import { Bot } from 'yunzai/core'
 
@@ -50,10 +51,26 @@ export default new (class Util {
     try {
       const data = JSON.stringify(jsonData, null, 2)
       fs.writeFileSync(filePath, data)
-      // console.log('写入JSON文件成功')
     } catch (error) {
       Bot.logger.error('写入JSON文件失败:', error)
-      // console.error('写入JSON文件失败:', error)
+    }
+  }
+
+  readYAML(filePath: string) {
+    try {
+      const data = fs.readFileSync(filePath, 'utf8');
+      return yaml.parse(data);
+    } catch (error) {
+      return null;
+    }
+  }
+
+  writeYAML(filePath: string, yamlData: any) {
+    try {
+      const data = yaml.stringify(yamlData);
+      fs.writeFileSync(filePath, data);
+    } catch (error) {
+      Bot.logger.error('写入YAML文件失败:', error);
     }
   }
 
@@ -78,5 +95,21 @@ export default new (class Util {
       arr.push(iterator)
     }
     return arr
+  }
+
+  mkdir(path: string) {
+    fs.mkdir(path, { recursive: true }, err => {
+      if (err) {
+        Bot.logger.error('mkdir error', err)
+      }
+    })
+  }
+
+  fileExists(filePath: string) {
+    try {
+      return fs.existsSync(filePath);
+    } catch (error) {
+      return false;
+    }
   }
 })()

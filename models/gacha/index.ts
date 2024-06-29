@@ -1,6 +1,5 @@
 import _ from 'lodash'
 import moment from 'moment'
-import fs from 'fs'
 import { Bot } from 'yunzai/core'
 import McKuroApi, {
   CARD_POOL_TYPE,
@@ -8,6 +7,7 @@ import McKuroApi, {
   type T_ResourceType
 } from '../api'
 import util from '../util'
+import config from '../config'
 
 export type T_CardPoolType = 'UP' | '常驻'
 
@@ -52,11 +52,11 @@ export default class GaChaModel {
       this.#mcApi = new McKuroApi(this.link.url)
       this.player_id = this.#mcApi.player_id as string
     }
-    this.mkdir(this.#jsonDataRootPath)
-    this.mkdir(this.#jsonUserGachaPath)
+    util.mkdir(this.#jsonDataRootPath)
+    util.mkdir(this.#jsonUserGachaPath)
   }
 
-  getGachaData(type: T_CardPoolType = 'UP', isItFourStarCount = false) {
+  getGachaData(type: T_CardPoolType = 'UP') {
     const roleGachaType =
       type === 'UP' ? CARD_POOL_TYPE.角色精准调谐 : CARD_POOL_TYPE.角色常驻调谐
     const weaponGachaType =
@@ -69,12 +69,10 @@ export default class GaChaModel {
     const roleCount = this.countGacha(
       roleGachaData,
       roleGachaType,
-      isItFourStarCount
     )
     const weaponCount = this.countGacha(
       weaponGachaData,
       weaponGachaType,
-      isItFourStarCount
     )
     return {
       role: {
@@ -129,11 +127,11 @@ export default class GaChaModel {
   countGacha(
     listData: T_GaChaResData[],
     typeId: CARD_POOL_TYPE,
-    isItFourStarCount = false
   ) {
     let numOf4Star = 0
     let numOf5star = 0
     let lastNum = 0
+    const isItFourStarCount = config.baseConfig.gacha?.isItFourStarCount || false;
     const dataArr = _.reduce(
       listData,
       (prev, curr: T_GaChaResData) => {
@@ -217,14 +215,6 @@ export default class GaChaModel {
 
   writeGachaJSON(fileName: string, data: T_GaChaResData[]) {
     return util.writeJSON(`${this.#jsonUserGachaPath}/${fileName}.json`, data)
-  }
-
-  mkdir(path: string) {
-    fs.mkdir(path, { recursive: true }, err => {
-      if (err) {
-        Bot.logger.error('mkdir error', err)
-      }
-    })
   }
 
   getCountTime(gachaData: T_GaChaResData[]) {
