@@ -72,6 +72,7 @@ export default class App extends Plugin {
     }
     util.writeJSON(this.jsonPath, links)
     this.e.reply('抽卡链接绑定成功！')
+    this.finish(this.vGachaBindLink.name)
     return true
   }
 
