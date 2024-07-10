@@ -73,7 +73,8 @@ export default class App extends Plugin {
     util.writeJSON(this.jsonPath, links)
     this.e.reply('抽卡链接绑定成功！')
     this.finish(this.vGachaBindLink.name)
-    return true
+    const kmcModel = new GaChaModel(user_id)
+    return await this.updateGachaFunc(kmcModel);
   }
 
   async getGachaLink() {
@@ -117,10 +118,14 @@ export default class App extends Plugin {
       this.e.reply('请先绑定抽卡链接，绑定方法请查看抽卡帮助！')
       return true
     }
+    return await this.updateGachaFunc(kmcModel);
+  }
+
+  async updateGachaFunc(kmcModel: GaChaModel) {
     this.e.reply(`正在获取[UID: ${kmcModel.player_id}]的抽卡数据，请稍后...`)
     try {
       const { updateNum } = await kmcModel.updateGacha()
-      const img = await image.createPage(user_id, 'gacha/GachaHelp')
+      const img = await image.createPage(kmcModel.user_id, 'gacha/GachaHelp')
       const replys: any[] = [
         `获取[UID: ${kmcModel.player_id}]抽卡数据成功！本次更新了${updateNum}条记录`
       ]
@@ -128,10 +133,10 @@ export default class App extends Plugin {
         replys.push(Segment.image(img))
       }
       this.e.reply(replys)
-      return true
+      return Promise.resolve(true);
     } catch (error) {
-      this.e.reply(`获取[UID: ${kmcModel.player_id}]抽卡数据失败！`)
-      return true
+      this.e.reply(`获取[UID: ${kmcModel.player_id}]抽卡数据失败！请稍后重试`)
+      return Promise.resolve(true);
     }
   }
 }

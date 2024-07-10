@@ -24,6 +24,7 @@ export default new (class Config {
   #configBasePath = `${this.#configRootPath}/base.yaml`;
 
   constructor() {
+    util.mkdir(this.#configBasePath)
     if (!util.fileExists(this.#configBasePath)) {
       util.writeYAML(this.#configBasePath, defaultConfig.base);
     }

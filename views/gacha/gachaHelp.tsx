@@ -30,6 +30,12 @@ export default function App() {
               &gt; 例：kmc获取抽卡链接（ps：仅限私聊）
             </p>
           </li>
+          <li className="p-4">
+            <div>更新抽卡记录：kmc抽卡更新</div>
+            <p className="opacity-80">
+              &gt; 例：kmc抽卡更新
+            </p>
+          </li>
         </ul>
 
         <div className="kuromc-text border-l-4 bg-black bg-opacity-50 p-4 border-[#f2d57c]">

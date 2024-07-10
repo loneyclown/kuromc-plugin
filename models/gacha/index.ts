@@ -41,13 +41,13 @@ export default class GaChaModel {
   #jsonLinkPath: string = `${this.#jsonDataRootPath}/links.json`
   #jsonUserGachaPath: string
   link: T_GachaLink
-  #user_id: number
+  user_id: number
   player_id: string
   constructor(user_id: number) {
     const links = util.readJSON(this.#jsonLinkPath) || []
     this.link = _.find(links, ['user_id', user_id])
-    this.#user_id = user_id
-    this.#jsonUserGachaPath = `${this.#jsonDataRootPath}/${this.#user_id}`
+    this.user_id = user_id
+    this.#jsonUserGachaPath = `${this.#jsonDataRootPath}/${this.user_id}`
     if (this.link?.url) {
       this.#mcApi = new McKuroApi(this.link.url)
       this.player_id = this.#mcApi.player_id as string
@@ -195,12 +195,13 @@ export default class GaChaModel {
     // 遍历新数据数组的逆序，以便从最新的资源开始检查
     for (let item of _.reverse(newData)) {
       // 如果当前资源的更新时间晚于最早更新时间，则将其添加到现有数据数组中，并增加更新数量计数
+      // console.log(item.cardPoolType, item.name, item.resourceId, item.time, '=====>', latestTime)
       if (moment(item.time).isAfter(moment(latestTime))) {
         oldData.push(item)
         updateNum++
       } else {
         // 如果当前资源的更新时间不晚于最早更新时间，则停止遍历，因为后续资源必定更早
-        break
+        // break
       }
     }
     // 将更新后的扭蛋资源数据数组写入到对应的JSON文件中

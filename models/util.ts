@@ -100,9 +100,11 @@ export default new (class Util {
   mkdir(path: string) {
     fs.mkdir(path, { recursive: true }, err => {
       if (err) {
-        Bot.logger.error('mkdir error', err)
+        if (err.code !== 'EEXIST') {
+          Bot.logger.error('mkdir error', err);
+        }
       }
-    })
+    });
   }
 
   fileExists(filePath: string) {
