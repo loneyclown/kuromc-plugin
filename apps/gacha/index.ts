@@ -35,7 +35,7 @@ export default class App extends Plugin {
 
   async gachaHelp(e: EventType) {
     const { user_id } = this.e.sender
-    const img = await image.createPage(user_id, 'gacha/GachaHelp')
+    const img = await image.createPage(user_id, 'gacha/gachaHelp')
     if (typeof img !== 'boolean') {
       e.reply(Segment.image(img))
     } else {
@@ -125,7 +125,7 @@ export default class App extends Plugin {
     this.e.reply(`正在获取[UID: ${kmcModel.player_id}]的抽卡数据，请稍后...`)
     try {
       const { updateNum } = await kmcModel.updateGacha()
-      const img = await image.createPage(kmcModel.user_id, 'gacha/GachaHelp')
+      const img = await image.createPage(kmcModel.user_id, 'gacha/gachaHelp')
       const replys: any[] = [
         `获取[UID: ${kmcModel.player_id}]抽卡数据成功！本次更新了${updateNum}条记录`
       ]
