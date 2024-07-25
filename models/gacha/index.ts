@@ -1,6 +1,5 @@
 import _ from 'lodash'
 import moment from 'moment'
-import fs from 'fs'
 import { Bot } from 'yunzai/core'
 import McKuroApi, {
   CARD_POOL_TYPE,
@@ -8,6 +7,7 @@ import McKuroApi, {
   type T_ResourceType
 } from '../api'
 import util from '../util'
+import config from '../config'
 
 export type T_CardPoolType = 'UP' | '常驻'
 
@@ -41,22 +41,22 @@ export default class GaChaModel {
   #jsonLinkPath: string = `${this.#jsonDataRootPath}/links.json`
   #jsonUserGachaPath: string
   link: T_GachaLink
-  #user_id: number
+  user_id: number
   player_id: string
   constructor(user_id: number) {
     const links = util.readJSON(this.#jsonLinkPath) || []
     this.link = _.find(links, ['user_id', user_id])
-    this.#user_id = user_id
-    this.#jsonUserGachaPath = `${this.#jsonDataRootPath}/${this.#user_id}`
+    this.user_id = user_id
+    this.#jsonUserGachaPath = `${this.#jsonDataRootPath}/${this.user_id}`
     if (this.link?.url) {
       this.#mcApi = new McKuroApi(this.link.url)
       this.player_id = this.#mcApi.player_id as string
     }
-    this.mkdir(this.#jsonDataRootPath)
-    this.mkdir(this.#jsonUserGachaPath)
+    util.mkdir(this.#jsonDataRootPath)
+    util.mkdir(this.#jsonUserGachaPath)
   }
 
-  getGachaData(type: T_CardPoolType = 'UP', isItFourStarCount = false) {
+  getGachaData(type: T_CardPoolType = 'UP') {
     const roleGachaType =
       type === 'UP' ? CARD_POOL_TYPE.角色精准调谐 : CARD_POOL_TYPE.角色常驻调谐
     const weaponGachaType =
@@ -69,12 +69,10 @@ export default class GaChaModel {
     const roleCount = this.countGacha(
       roleGachaData,
       roleGachaType,
-      isItFourStarCount
     )
     const weaponCount = this.countGacha(
       weaponGachaData,
       weaponGachaType,
-      isItFourStarCount
     )
     return {
       role: {
@@ -129,11 +127,11 @@ export default class GaChaModel {
   countGacha(
     listData: T_GaChaResData[],
     typeId: CARD_POOL_TYPE,
-    isItFourStarCount = false
   ) {
     let numOf4Star = 0
     let numOf5star = 0
     let lastNum = 0
+    const isItFourStarCount = config.baseConfig.gacha?.isItFourStarCount || false;
     const dataArr = _.reduce(
       listData,
       (prev, curr: T_GaChaResData) => {
@@ -197,12 +195,13 @@ export default class GaChaModel {
     // 遍历新数据数组的逆序，以便从最新的资源开始检查
     for (let item of _.reverse(newData)) {
       // 如果当前资源的更新时间晚于最早更新时间，则将其添加到现有数据数组中，并增加更新数量计数
+      // console.log(item.cardPoolType, item.name, item.resourceId, item.time, '=====>', latestTime)
       if (moment(item.time).isAfter(moment(latestTime))) {
         oldData.push(item)
         updateNum++
       } else {
         // 如果当前资源的更新时间不晚于最早更新时间，则停止遍历，因为后续资源必定更早
-        break
+        // break
       }
     }
     // 将更新后的扭蛋资源数据数组写入到对应的JSON文件中
@@ -217,14 +216,6 @@ export default class GaChaModel {
 
   writeGachaJSON(fileName: string, data: T_GaChaResData[]) {
     return util.writeJSON(`${this.#jsonUserGachaPath}/${fileName}.json`, data)
-  }
-
-  mkdir(path: string) {
-    fs.mkdir(path, { recursive: true }, err => {
-      if (err) {
-        Bot.logger.error('mkdir error', err)
-      }
-    })
   }
 
   getCountTime(gachaData: T_GaChaResData[]) {
