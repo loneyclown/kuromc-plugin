@@ -267,5 +267,10 @@ export default [
     名字: '时和岁稔',
     resourceId: 21010026,
     avatar: require("../../public/assets/image/IconWeapon160/T_IconWeapon160_21010015_UI.png")
+  },
+  {
+    名字: '赫奕流明',
+    resourceId: 21020016,
+    avatar: require("../../public/assets/image/IconWeapon160/T_IconWeapon160_21020016_UI.png")
   }
 ] as T_WoaponData[]
