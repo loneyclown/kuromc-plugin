@@ -27,7 +27,7 @@ export default [
   { 名字: '安可', 性别: '女', 生日: '3月21日', 属性: profile.热熔, 武器: '音感仪', 所属: '黑海岸', 星级: 5, avatar: require('../../public/assets/image/IconRoleHead175/T_IconRoleHead175_8_UI.png') },
   { 名字: '桃祈', resourceId: 1601, 性别: '女', 生日: '2月25日', 属性: profile.湮灭, 武器: '长刃', 所属: '今州', 星级: 4, avatar: require('../../public/assets/image/IconRoleHead175/T_IconRoleHead175_9_UI.png') },
   { 名字: '丹瑾', 性别: '女', 生日: '8月31日', 属性: profile.湮灭, 武器: '迅刀', 所属: '今州', 星级: 4, avatar: require('../../public/assets/image/IconRoleHead175/T_IconRoleHead175_10_UI.png') },
-  { 名字: '忌炎', 性别: '男', 生日: '12月14日', 属性: profile.气动, 武器: '长刃', 所属: '今州', 星级: 5, up: true, avatar: require('../../public/assets/image/IconRoleHead175/T_IconRoleHead175_11_UI.png') },
+  { 名字: '忌炎', resourceId: 1404, 性别: '男', 生日: '12月14日', 属性: profile.气动, 武器: '长刃', 所属: '今州', 星级: 5, up: true, avatar: require('../../public/assets/image/IconRoleHead175/T_IconRoleHead175_11_UI.png') },
   { 名字: '秋水', resourceId: 1403, 性别: '男', 生日: '6月11日', 属性: profile.气动, 武器: '佩枪', 所属: '黑海岸', 星级: 4, avatar: require('../../public/assets/image/IconRoleHead175/T_IconRoleHead175_12_UI.png') },
   { 名字: '莫特斐', 性别: '男', 生日: '11月6日', 属性: profile.热熔, 武器: '佩枪', 所属: '今州', 星级: 4, avatar: require('../../public/assets/image/IconRoleHead175/T_IconRoleHead175_13_UI.png') },
   { 名字: '凌阳', 性别: '男', 生日: '8月8日', 属性: profile.冷凝, 武器: '臂铠', 所属: '今州', 星级: 5, avatar: require('../../public/assets/image/IconRoleHead175/T_IconRoleHead175_14_UI.png') },
@@ -36,5 +36,6 @@ export default [
   { 名字: '卡卡罗', 性别: '男', 生日: '7月8日', 属性: profile.导电, 武器: '长刃', 所属: '今州', 星级: 5, avatar: require('../../public/assets/image/IconRoleHead175/T_IconRoleHead175_18_UI.png') },
   { 名字: '鉴心', 性别: '女', 生日: '4月6日', 属性: profile.气动, 武器: '臂铠', 所属: '今州', 星级: 5, avatar: require('../../public/assets/image/IconRoleHead175/T_IconRoleHead175_23_UI.png') },
   { 名字: '今汐', resourceId: 1304, 性别: '女', 生日: '', 属性: profile.衍射, 武器: '长刃', 所属: '今州', 星级: 5, up: true, avatar: require('../../public/assets/image/IconRoleHead175/T_IconRoleHead175_24_UI.png') },
-  { 名字: '长离', 性别: '女', 生日: '', 属性: profile.热熔, 武器: '迅刀', 所属: '今州', 星级: 5, up: true, avatar: require('../../public/assets/image/IconRoleHead175/T_IconRoleHead175_26_UI.png') },
+  { 名字: '长离', resourceId: 1205, 性别: '女', 生日: '', 属性: profile.热熔, 武器: '迅刀', 所属: '今州', 星级: 5, up: true, avatar: require('../../public/assets/image/IconRoleHead175/T_IconRoleHead175_26_UI.png') },
+  { 名字: '折枝', resourceId: 1105, 性别: '女', 生日: '', 属性: profile.冷凝, 武器: '音感仪', 所属: '今州', 星级: 5, up: true, avatar: require('../../public/assets/image/IconRoleHead175/T_IconRoleHead175_27_UI.png') },
 ] as T_RoleData[]
