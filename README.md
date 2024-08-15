@@ -5,17 +5,20 @@
   <img src ="https://img.shields.io/github/languages/top/loneyclown/kuromc-plugin?logo=github"/>
 </div>
 
-> __该插件基于[Miao-Yunzai V4](https://ningmengchongshui.github.io/Miao-Yunzai-Docs/)！！！__  
-> __该插件基于[Miao-Yunzai V4](https://ningmengchongshui.github.io/Miao-Yunzai-Docs/)！！！__  
-> __该插件基于[Miao-Yunzai V4](https://ningmengchongshui.github.io/Miao-Yunzai-Docs/)！！！__  
+> **该插件基于[Yunzai V4](https://yunzai-org.github.io/docs/)！！！**  
+> **该插件基于[Yunzai V4](https://yunzai-org.github.io/docs/)！！！**  
+> **该插件基于[Yunzai V4](https://yunzai-org.github.io/docs/)！！！**
 
 ### 如果觉得插件对你有帮助的话请点一个star！这是对我们最大的支持和动力！
+
 有相关的建议和问题可以在issues中提出，欢迎PR。
 
 ## 使用方法
 
 ### 克隆项目
+
 进入Yunzai根目录
+
 ```shell
 git clone --depth=1 https://github.com/loneyclown/kuromc-plugin.git ./plugins/kuromc-plugin/
 ```
@@ -33,9 +36,9 @@ git clone --depth=1 https://github.com/loneyclown/kuromc-plugin.git ./plugins/ku
 - ~~[✅] 抽卡分析~~
 - ~~[✅] 版本活动/当期UP~~
 - [ ] 库街区登录
+- [ ] 库街区签到/自动签到
 - [ ] 每日查询
 - [ ] 图鉴/攻略查询
 - [ ] 面板查询
 - [ ] 伤害计算
 - [ ] 星声预估
-
